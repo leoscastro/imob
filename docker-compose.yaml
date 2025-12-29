@@ -1,0 +1,106 @@
+version: "3.8"
+
+services:
+  # --- 1. POSTGRESQL ---
+  db_postgres:
+    container_name: imob_postgres
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./dados/postgres:/var/lib/postgresql/data
+    networks:
+      - rede_interna
+    healthcheck:
+      # Aqui ele usa o usuário definido na variável para testar
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --- 2. NOCODB ---
+  nocodb:
+    container_name: imob_nocodb
+    image: nocodb/nocodb:latest
+    restart: always
+    depends_on:
+      db_postgres:
+        condition: service_healthy
+    environment:
+      # AQUI ESTAVA O PERIGO! Agora montamos a URL dinamicamente:
+      - NC_DB=pg://imob_postgres:5432?u=${POSTGRES_USER}&p=${POSTGRES_PASSWORD}&d=${POSTGRES_DB}
+      - NC_PUBLIC_URL=http://localhost:${PORT_NOCODB}
+    ports:
+      - "${PORT_NOCODB}:8080"
+    volumes:
+      - ./dados/nocodb:/usr/app/data
+    networks:
+      - rede_interna
+
+  # --- 3. METABASE ---
+  metabase:
+    container_name: imob_metabase
+    image: metabase/metabase:latest
+    restart: always
+    depends_on:
+      db_postgres:
+        condition: service_healthy
+    ports:
+      - "${PORT_METABASE}:3000"
+    volumes:
+      - ./dados/metabase:/metabase-data
+    environment:
+      - MB_DB_FILE=/metabase-data/metabase.db
+    networks:
+      - rede_interna
+
+  # --- 4. n8n ---
+  n8n:
+    container_name: imob_n8n
+    image: n8nio/n8n:latest
+    restart: always
+    ports:
+      - "${PORT_N8N}:5678"
+    environment:
+      - N8N_SECURE_COOKIE=false
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=imob_postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
+      - DB_POSTGRESDB_USER=${POSTGRES_USER}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      - N8N_HOST=localhost
+      - GENERIC_TIMEZONE=${TZ}
+      - TZ=${TZ}
+      - N8N_RUNNERS_ENABLED=true
+    volumes:
+      - ./dados/n8n:/home/node/.n8n
+    networks:
+      - rede_interna
+
+  # --- 5. WORKER PYTHON ---
+  python_worker:
+    build: ./python_worker
+    container_name: imob_python
+    restart: unless-stopped
+    ports:
+      - "${PORT_PYTHON}:8000"
+    environment:
+      - TZ=${TZ}
+      # Agora passamos as senhas para o Python também (para o futuro)
+      - DB_HOST=imob_postgres
+      - DB_NAME=${POSTGRES_DB}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASS=${POSTGRES_PASSWORD}
+    networks:
+      - rede_interna
+    depends_on:
+      db_postgres:
+        condition: service_healthy
+
+networks:
+  rede_interna:
+    driver: bridge

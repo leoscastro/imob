@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+playwright
+sqlalchemy
+databases[postgresql]
+psycopg2-binary
+pydantic
+fake-useragent

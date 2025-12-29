@@ -1,0 +1,20 @@
+# Ignorar arquivos de sistema e cache
+__pycache__/
+*.pyc
+.DS_Store
+
+# Ignorar ambientes virtuais
+venv/
+env/
+
+# --- SEGURANÇA E DADOS ---
+# Ignorar arquivos de configuração com senhas
+.env
+
+# Ignorar pastas de dados do Docker (Isso resolve o seu erro!)
+dados/
+postgres_data/
+n8n_data/
+
+# Logs
+*.log
