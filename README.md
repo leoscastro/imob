@@ -1,4 +1,4 @@
-# 🏙️ BIM-O: Bot Imobiliário Open-Source (DSR Project)
+# 🏙️ imob: Bot Imobiliário Open-Source (DSR Project)
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
 ![Docker](https://img.shields.io/badge/Docker-Enabled-blue.svg)
@@ -6,7 +6,7 @@
 ![Status](https://img.shields.io/badge/Status-Em_Desenvolvimento-yellow.svg)
 
 ## 📋 Sobre o Projeto
-O **BIM-O** é um sistema de monitoramento imobiliário autônomo desenvolvido seguindo a metodologia **Design Science Research (DSR)**. O objetivo é resolver a assimetria de informações no mercado imobiliário, capturando, estruturando e georreferenciando dados de grandes portais para análise de investimento.
+O **imob** é um sistema de monitoramento imobiliário autônomo desenvolvido seguindo a metodologia **Design Science Research (DSR)**. O objetivo é resolver a assimetria de informações no mercado imobiliário, capturando, estruturando e georreferenciando dados de grandes portais para análise de investimento.
 
 ## 🏗️ Arquitetura (Microsserviços)
 O projeto opera em containers Docker orquestrados:
@@ -19,8 +19,8 @@ O projeto opera em containers Docker orquestrados:
 
 ### 1. Clone o repositório
 ```bash
-git clone [https://github.com/leoscastro/BIM-O.git](https://github.com/leoscastro/BIM-O.git)
-cd BIM-O
+git clone [https://github.com/leoscastro/imob.git](https://github.com/leoscastro/imob.git)
+cd imob
 
 ### 2. Configure as Variáveis
 Renomeie o arquivo de exemplo e edite com suas senhas:
